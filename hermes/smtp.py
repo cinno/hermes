@@ -41,13 +41,13 @@ class Server(smtpd.SMTPServer):
         smtpd.SMTPServer.__init__(self, local_address, remote_address)
         self.sender = None if remote_address is None else Sender(remote_address)
 
-    def process_message(self, *args, **kwargs):
+    def process_message(self, address, sender, recipients, message):
         for hook in self.hooks:
             logging.info('Running hook {}'.format(hook))
-            hook(*args, **kwargs)
+            hook(address, sender, recipients, message)
 
         if self.sender:
-            self.sender.send(*args, **kwargs)
+            self.sender.send(sender, recipients, message)
 
     def run(self):
         try:
