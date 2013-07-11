@@ -36,10 +36,18 @@ class Sender(object):
             log.error(error)
 
 
+class Server(smtpd.SMTPServer):
+    def __init__(self, local_address, remote_address):
+        smtpd.SMTPServer.__init__(self, local_address, remote_address)
+        self.sender = None if remote_address is None else Sender(remote_address)
+
     def process_message(self, *args, **kwargs):
         for hook in self.hooks:
             logging.info('Running hook {}'.format(hook))
             hook(*args, **kwargs)
+
+        if self.sender:
+            self.sender.send(*args, **kwargs)
 
     def run(self):
         try:
@@ -48,7 +56,7 @@ class Sender(object):
             self.close()
 
     @classmethod
-    def create(cls, ip, port, hooks):
-        instance = cls((ip, port), None)
+    def create(cls, address, hooks, proxy_address=None):
+        instance = cls(address, proxy_address)
         instance.hooks = hooks
         return instance

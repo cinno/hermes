@@ -8,7 +8,7 @@ import argparse
 from stevedore import extension
 
 from .daemon import Daemon
-from .smtp import HookedSMTPServer
+from .smtp import Server
 
 log = logging.getLogger('hermes')
 
@@ -42,7 +42,7 @@ def create_server(args):
 
     try:
         print(u'Started SMTP server at {}:{}'.format(args.ip, args.port))
-        return HookedSMTPServer.create(args.ip, args.port, hooks)
+        return Server.create((args.ip, args.port), hooks)
     except PermissionError as error:
         print(u'Not enough privileges to run on {}:{}. {}'
               .format(args.ip, args.port, error))
