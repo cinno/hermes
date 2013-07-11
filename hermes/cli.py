@@ -41,7 +41,7 @@ def create_server(args):
     hooks = [obj for name, obj in args.extensions.items() if name in args.hooks]
 
     try:
-        print(u'Started SMTP server at {}:{}'.format(args.ip, args.port))
+        print(u'Starting SMTP server at {}:{}'.format(args.ip, args.port))
         return Server.create((args.ip, args.port), hooks, args.proxy_address)
     except PermissionError as error:
         print(u'Not enough privileges to run on {}:{}. {}'
