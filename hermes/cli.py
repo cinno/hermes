@@ -42,7 +42,7 @@ def create_server(args):
 
     try:
         print(u'Started SMTP server at {}:{}'.format(args.ip, args.port))
-        return Server.create((args.ip, args.port), hooks)
+        return Server.create((args.ip, args.port), hooks, args.proxy_address)
     except PermissionError as error:
         print(u'Not enough privileges to run on {}:{}. {}'
               .format(args.ip, args.port, error))
@@ -66,6 +66,8 @@ def parse_args(extensions):
     parser.add_argument("--port", default=25, type=int, help=u"Server specific port (default: 25)")
     parser.add_argument("--stdout", default=None, help=u"Redirect standar output to a file")
     parser.add_argument("--stderr", default=None, help=u"Redirect standar error output to a file")
+    parser.add_argument("--proxy", default=None, metavar='ADDR',
+                        help=u"Proxy messages to another SMPT server (ip:port)")
     parser.add_argument("--hook", action='append', dest='hooks', default=[],
                         help=u"Loads and hooks the given message processor (one of: {}) "
                         "use it multiple times".format(extensions))
@@ -76,6 +78,7 @@ def parse_args(extensions):
 
     args = parser.parse_args()
     args.extensions = extensions
+    args.proxy_address = args.proxy.split(':') if args.proxy else None
 
     return args
 
