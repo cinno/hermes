@@ -2,7 +2,9 @@
 
 import os
 import sys
+import json
 import logging
+import logging.config
 import argparse
 
 from stevedore import extension
@@ -21,7 +23,6 @@ class MailDaemon(Daemon):
 
     def run(self):
         try:
-            print(u'Running server {}\n'.format(self.server_instance))
             self.server_instance.run()
         except Exception as error:
             log.error((Exception, error))
@@ -62,25 +63,51 @@ def parse_args(extensions):
     parser = argparse.ArgumentParser()
 
     parser.add_argument("action", choices=['start', 'stop', 'restart', 'status', 'hooks'])
-    parser.add_argument("--ip", default=public_ip(), help=u"Server public ip")
-    parser.add_argument("--port", default=25, type=int, help=u"Server specific port (default: 25)")
+    parser.add_argument("--ip", default=None, help=u"Server public ip")
+    parser.add_argument("--port", default=None, type=int, help=u"Server specific port (default: 25)")
     parser.add_argument("--stdout", default=None, help=u"Redirect standar output to a file")
     parser.add_argument("--stderr", default=None, help=u"Redirect standar error output to a file")
-    parser.add_argument("--proxy", default=None, metavar='ADDR',
+    parser.add_argument("--config", default=None, help=u"Loads configuration from JSON file")
+    parser.add_argument("--proxy", default=None, metavar='IP:PORT',
                         help=u"Proxy messages to another SMPT server (ip:port)")
     parser.add_argument("--hook", action='append', dest='hooks', default=[],
-                        help=u"Loads and hooks the given message processor (one of: {}) "
-                        "use it multiple times".format(extensions))
+                        help=u"Load message processor by name. Can be used multiple times."
+                        " the 'printer' processor is always attached".format(extensions))
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("--verbose", action="store_true", default=False, help="Verbose output")
-    group.add_argument("--silent", action="store_true", default=False, help="Less verbose output")
+    group.add_argument("--verbose", action="store_true", default=None, help="Verbose output")
+    group.add_argument("--silent", action="store_true", default=None, help="Less verbose output")
 
     args = parser.parse_args()
+    update_args_from_config(args)
+    set_args_default_values(args)
+
     args.extensions = extensions
-    args.proxy_address = args.proxy.split(':') if args.proxy else None
+
+    validate_args(args)
 
     return args
+
+
+def set_args_default_values(args):
+    args.hooks = set(['printer'] + args.hooks)
+    args.port = 25 if args.port is None else args.port
+    args.ip = public_ip() if args.ip is None else args.ip
+    args.stderr = 'error.log' if args.stderr is None else args.stderr
+    args.proxy_address = args.proxy.split(':') if args.proxy else None
+    args.stdout = 'output.log' if args.stdout is None else args.stdout
+
+    return args
+
+
+def update_args_from_config(args):
+    if args.config is not None:
+        with open(args.config, 'r') as stream:
+            config = json.load(stream)
+
+        for key, value in config.items():
+            if getattr(args, key, value) is None:  # Do not override user input
+                setattr(args, key, value)
 
 
 def validate_args(args):
@@ -94,9 +121,30 @@ def validate_args(args):
 
 
 def configure_logging(args):
-    verbosity = logging.DEBUG if args.verbose else logging.INFO
-    verbosity = logging.WARNING if args.silent else verbosity
-    logging.basicConfig(level=verbosity, format=_LOGGING_FMT_)
+    verbosity = 'DEBUG' if args.verbose else 'INFO'
+    verbosity = 'WARNING' if args.silent else verbosity
+
+    logging.config.dictConfig({
+        'version': 1,
+        'formatters': {
+            'precise': {
+                'format': '%(asctime)s %(name)s %(levelname)s | %(message)s'
+            }
+        },
+        'handlers': {
+            'console': {
+                'level': 'INFO',
+                'formatter': 'precise',
+                'class': 'logging.StreamHandler'
+            }
+        },
+        'loggers': {
+            'hermes': {
+                'level': verbosity,
+                'handlers': ['console']
+            }
+        }
+    })
 
 
 def daemon_arguments(args):
@@ -134,7 +182,7 @@ def list_hooks(args):
 
 
 def main():
-    args = validate_args(parse_args(load_extensions()))
+    args = parse_args(load_extensions())
 
     configure_logging(args)
 
