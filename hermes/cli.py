@@ -133,13 +133,14 @@ def configure_logging(args):
         },
         'handlers': {
             'console': {
-                'level': 'INFO',
                 'formatter': 'precise',
-                'class': 'logging.StreamHandler'
+                'class': 'logging.StreamHandler',
+                'stream': 'ext://sys.stdout'
             }
         },
         'loggers': {
             'hermes': {
+                'level': 'INFO',
                 'level': verbosity,
                 'handlers': ['console']
             }
