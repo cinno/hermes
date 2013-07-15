@@ -42,14 +42,20 @@ class Server(smtpd.SMTPServer):
         self.sender = None if remote_address is None else Sender(remote_address)
 
     def process_message(self, address, sender, recipients, message):
+        log.info('Message from {} at {} to {}'.format(
+            sender, address, recipients))
+
         for hook in self.hooks:
-            logging.info('Running hook {}'.format(hook))
+            log.debug('Running hook {}'.format(type(hook)))
             hook(address, sender, recipients, message)
 
         if self.sender:
+            log.info('Proxying message to relay server at {}'
+                     .format(self._remoteaddr))
             self.sender.send(sender, recipients, message)
 
     def run(self):
+        log.info('Starting server at {}'.format(self._localaddr))
         try:
             asyncore.loop()
         except Exception:
