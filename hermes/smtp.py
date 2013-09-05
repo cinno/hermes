@@ -47,7 +47,7 @@ class Server(smtpd.SMTPServer):
 
         for hook in self.hooks:
             log.debug('Running hook {}'.format(type(hook)))
-            hook(address, sender, recipients, message)
+            self.run_hook(hook, address, sender, recipients, message)
 
         if self.sender:
             log.info('Proxying message to relay server at {}'
@@ -60,6 +60,13 @@ class Server(smtpd.SMTPServer):
             asyncore.loop()
         except Exception:
             self.close()
+
+    def run_hook(self, hook, address, sender, recipients, message):
+        try:
+            hook(address, sender, recipients, message)
+        except Exception as error:
+            log.error('Failed to run {}. {}: {}'.format(
+                repr(type(hook)), type(error), error), exc_info=True)
 
     @classmethod
     def create(cls, address, hooks, proxy_address=None):
