@@ -1,6 +1,4 @@
-# Hermes: Mail trap
-
-`Hermes` is a programmable SMTP server.
+# Hermes: a programmable SMTP proxy server.
 
 It can act like a sort of "*mail trap*" to your email allowing you to
 proxy, register, log, redirect, rewrite or mangle all emails sent to it.
@@ -60,6 +58,54 @@ Beware that daemons are identified by the port which they are binded to.
     $ hermes start --proxy my.mail.ip:25
 
 It reads the relay server configuration ip:port and routes all emails to it.
+
+## Installation
+
+	python setup.py install
+
+## Development
+
+
+It should work flawlessly under 2.7 and 3.3
+
+1. Create a virtualenv and activate it
+
+	virtualenv hermes
+	workon hermes
+
+2. Install development requirements
+
+	(hermes)$ pip install -r dev-requirements.txt
+
+3. Install the application in development mode
+
+	(hermes)$ python setup.py develop
+
+4. Test with tox, which will run nosetests per each env
+
+	(hermes)$ tox
+
+It tests against `python 2.7` and `python 3.3`.
+
+## Configuration
+
+Instead of using the command line, a custom configuration can be used in JSON format.
+
+    $ hermes start --config hermes.json
+
+The configuration file looks like this:
+
+    {
+        "ip": "192.168.1.25",
+        "port": "25",
+        "stdout": "/path/to/file",
+        "stderr": "/path/to/file",
+        "proxy": "my.mail.ip:25",
+        "hooks": [
+            "printer",
+        ],
+        "verbose": true
+    }
 
 ## Extensions
 
@@ -128,51 +174,6 @@ setup(
 )
 
 ```
-## Configuration
-
-Instead of using the command line, a custom configuration can be used in JSON format.
-
-    $ hermes start --config hermes.json
-
-The configuration file looks like this:
-
-    {
-        "ip": "192.168.1.25",
-        "port": "25",
-        "stdout": "/path/to/file",
-        "stderr": "/path/to/file",
-        "proxy": "my.mail.ip:25",
-        "hooks": [
-            "printer",
-        ],
-        "verbose": true
-    }
-
-## Installation
-
-	python setup.py install
-
-## Development
-
-
-It should work flawlessly under 2.7 and 3.3
-
-1. Create a virtualenv and activate it
-	virtualenv hermes
-	workon hermes
-
-2. Install development requirements
-
-	(hermes)$ pip install -r dev-requirements.txt
-
-3. Install the application in development mode
-
-	(hermes)$ python setup.py develop
-
-4. Test with tox, which will run nosetests per each env
-	(hermes)$ tox
-
-It tests against `python 2.7` and `python 3.3`.
 
 ## TODO: What's ahead?
 
