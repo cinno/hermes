@@ -44,11 +44,7 @@ def create_server(args):
     try:
         print(u'Starting SMTP server at {}:{}'.format(args.ip, args.port))
         return Server.create((args.ip, args.port), hooks, args.proxy_address)
-    except PermissionError as error:
-        print(u'Not enough privileges to run on {}:{}. {}'
-              .format(args.ip, args.port, error))
-        sys.exit(1)
-    except OSError as error:
+    except (IOError, OSError) as error:
         print(u'Could not run daemon on {}:{}. {}'
               .format(args.ip, args.port, error))
         sys.exit(1)
