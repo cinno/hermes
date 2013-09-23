@@ -18,10 +18,20 @@ Please feel free to adapt it to your own purposes and contribute by sending a pu
 
 To start the daemon use the `hermes` command line tool which is installed altogether.
 
-	usage: hermes {start,stop,restart,status,hooks}
+	usage: hermes {run,start,stop,restart,status,hooks}
 				  [-h] [--ip IP] [--port PORT] [--stdout STDOUT] [--stderr STDERR]
 				  [--config CONFIG] [--proxy IP:PORT] [--hook HOOKS]
 				  [--verbose | --silent]
+
+### Run
+
+	$ hermes run
+	2013-09-05 10:57:04,643 hermes INFO | Starting server at ('127.0.0.1', 1435)
+	Ctrl-C
+	$
+
+	The simplest way to use it is to have it attached to a tty. Type `hermes run` and all logging
+	will be redirected to the stdout and stderr.
 
 ### Start server
 
