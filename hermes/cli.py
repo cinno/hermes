@@ -154,7 +154,10 @@ def daemon_arguments(args):
 
 def run(args):
     server = create_server(args)
-    server.run()
+    try:
+        server.run()
+    except KeyboardInterrupt:
+        pass
 
 
 def start(args):
