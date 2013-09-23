@@ -146,7 +146,7 @@ def configure_logging(args):
 
 def daemon_arguments(args):
     return dict(
-        name=u'mailpit-{port}'.format(port=args.port),  # one daemon per port (different pidfile)
+        name=u'hermes-{port}'.format(port=args.port),  # one daemon per port (different pidfile)
         stdout=os.path.realpath(args.stdout) if args.stdout else None,
         stderr=os.path.realpath(args.stderr) if args.stderr else None
     )
