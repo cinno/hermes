@@ -1,0 +1,14 @@
+0.1.1  (2013-07-15)
+------------------
+
+- Adds `run` command which runs mail server in the foreground
+- Adds travis CI configuration
+
+- Fixes Python 2 problem with `PermissionError`
+- Fixes process name
+
+
+0.1  (2013-07-15)
+------------------
+
+- Initial version
