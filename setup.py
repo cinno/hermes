@@ -11,7 +11,7 @@ with open(os.path.join(here, 'requirements.txt')) as req_file:
 
 setup(
     name='hermes',
-    version='0.1',
+    version='0.1.1',
     packages=find_packages(),
     install_requires=requires,
     classifiers=[
