@@ -58,7 +58,7 @@ def load_extensions():
 def parse_args(extensions):
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("action", choices=['start', 'stop', 'restart', 'status', 'hooks'])
+    parser.add_argument("action", choices=['run', 'start', 'stop', 'restart', 'status', 'hooks'])
     parser.add_argument("--ip", default=None, help=u"Server public ip")
     parser.add_argument("--port", default=None, type=int, help=u"Server specific port (default: 25)")
     parser.add_argument("--stdout", default=None, help=u"Redirect standar output to a file")
@@ -152,6 +152,11 @@ def daemon_arguments(args):
     )
 
 
+def run(args):
+    server = create_server(args)
+    server.run()
+
+
 def start(args):
     daemon = MailDaemon.create(**daemon_arguments(args))
     daemon.initialize(create_server(args))
@@ -183,7 +188,7 @@ def main():
 
     configure_logging(args)
 
-    actions = dict(stop=stop, start=start, restart=restart, status=status, hooks=list_hooks)
+    actions = dict(run=run, stop=stop, start=start, restart=restart, status=status, hooks=list_hooks)
     action = actions[args.action]
     action(args)
 
